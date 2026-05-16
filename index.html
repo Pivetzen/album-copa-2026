@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle do Álbum Físico - Copa 2026</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary-color: #8a1538; /* Tom vinho clássico da FIFA */
+            --accent-owned: #2ecc71;
+            --accent-repeated: #e67e22;
+            --text-color: #2c3e50;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #8a1538, #4a0014);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .teams-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .team-section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .team-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .team-progress {
+            font-size: 12px;
+            color: #7f8c8d;
+            background: #edf2f7;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+
+        .stickers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .sticker-card {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.2s ease;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .sticker-id {
+            font-weight: bold;
+            font-size: 12px;
+            color: #34495e;
+        }
+
+        .sticker-name {
+            font-size: 11px;
+            color: #7f8c8d;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .action-btn {
+            padding: 5px 8px;
+            font-size: 11px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn-have {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .sticker-card.owned .btn-have {
+            background-color: var(--accent-owned);
+            color: white;
+        }
+
+        .sticker-card.owned {
+            background-color: #ebfbee;
+            border-color: #a3e635;
+        }
+
+        .repeated-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #edf2f7;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 11px;
+        }
+
+        .rep-btn {
+            background: #cbd5e1;
+            border: none;
+            width: 24px;
+            height: 22px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rep-btn:hover {
+            background: #94a3b8;
+        }
+
+        .rep-count {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sticker-card.has-repeated {
+            border-color: var(--accent-repeated);
+        }
+        
+        .sticker-card.has-repeated .repeated-control {
+            background-color: #ffedd5;
+            color: #c2410c;
+        }
+
+        .actions-footer {
+            margin-top: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .footer-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Controle do Álbum Físico - Copa 2026</h1>
+        <p>Configurado: 20 figurinhas por seleção (1: Emblema, 13: Equipe, demais: Jogadores)</p>
+    </header>
+
+    <div class="dashboard">
+        <div class="stat-card">
+            <h3>Total do Álbum</h3>
+            <p id="stat-total-stickers">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Tenho Coladas</h3>
+            <p id="stat-owned">0 (<span id="stat-owned-pct">0%</span>)</p>
+        </div>
+        <div class="stat-card">
+            <h3>Faltam</h3>
+            <p id="stat-missing">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total de Repetidas</h3>
+            <p id="stat-repeated">0</p>
+        </div>
+    </div>
+
+    <div class="filters">
+        <input type="text" id="search-input" class="search-bar" placeholder="Buscar seleção, código da figurinha ou nome do jogador..." oninput="filterTeams()">
+    </div>
+
+    <div class="teams-container" id="teams-container"></div>
+
+    <div class="actions-footer">
+        <button class="footer-btn btn-danger" onclick="clearAllData()">Limpar Tudo</button>
+    </div>
+
+    <script>
+        // Lista base de seleções
+        const teamList = [
+            {"id": "MEX", "name": "México"}, {"id": "RSA", "name": "África do Sul"}, {"id": "KOR", "name": "Coreia do Sul"},
+            {"id": "CZE", "name": "Chéquia"}, {"id": "CAN", "name": "Canadá"}, {"id": "BIH", "name": "Bósnia e Herzegovina"},
+            {"id": "QAT", "name": "Catar"}, {"id": "SUI", "name": "Suíça"}, {"id": "BRA", "name": "Brasil"},
+            {"id": "MAR", "name": "Marrocos"}, {"id": "HAI", "name": "Haiti"}, {"id": "SCO", "name": "Escócia"},
+            {"id": "USA", "name": "Estados Unidos"}, {"id": "PAR", "name": "Paraguai"}, {"id": "AUS", "name": "Austrália"},
+            {"id": "TUR", "name": "Turquia"}, {"id": "GER", "name": "Alemanha"}, {"id": "CUW", "name": "Curaçao"},
+            {"id": "CIV", "name": "Costa do Marfim"}, {"id": "ECU", "name": "Equador"}, {"id": "NED", "name": "Países Baixos"},
+            {"id": "JPN", "name": "Japão"}, {"id": "SWE", "name": "Suécia"}, {"id": "TUN", "name": "Tunísia"},
+            {"id": "BEL", "name": "Bélgica"}, {"id": "EGY", "name": "Egito"}, {"id": "IRN", "name": "Irã"},
+            {"id": "NZL", "name": "Nova Zelândia"}, {"id": "ESP", "name": "Espanha"}, {"id": "CPV", "name": "Cabo Verde"},
+            {"id": "KSA", "name": "Arábia Saudita"}, {"id": "URU", "name": "Uruguai"}, {"id": "FRA", "name": "França"},
+            {"id": "SEN", "name": "Senegal"}, {"id": "IRQ", "name": "Iraque"}, {"id": "NOR", "name": "Noruega"},
+            {"id": "ARG", "name": "Argentina"}, {"id": "ALG", "name": "Argélia"}, {"id": "AUT", "name": "Áustria"},
+            {"id": "JOR", "name": "Jordânia"}, {"id": "POR", "name": "Portugal"}, {"id": "COD", "name": "RD Congo"},
+            {"id": "UZB", "name": "Uzbequistão"}, {"id": "COL", "name": "Colômbia"}, {"id": "ENG", "name": "Inglaterra"},
+            {"id": "CRO", "name": "Croácia"}, {"id": "GHA", "name": "Gana"}, {"id": "PAN", "name": "Panamá"}
+        ];
+
+        // Montagem do Banco de Dados do Álbum Físico
+        const albumData = [];
+
+        // 1. Seção de Introdução (Exemplo padrão de álbuns físicos)
+        albumData.push({
+            "id": "FWC",
+            "name": "Introdução",
+            "stickers": [
+                {"code": "FWC1", "name": "Logo FIFA"}, {"code": "FWC2", "name": "Taça"}, 
+                {"code": "FWC3", "name": "Mascote"}, {"code": "FWC4", "name": "Bola Oficial"}
+            ]
+        });
+
+        // 2. Geração automática das seleções com 20 figurinhas cada
+        teamList.forEach(team => {
+            const stickers = [];
+            for (let i = 1; i <= 20; i++) {
+                let description = `Jogador ${i}`;
+                if (i === 1) description = "Emblema";
+                if (i === 13) description = "Equipe";
+
+                stickers.push({
+                    "code": `${team.id}${i}`,
+                    "name": description
+                });
+            }
+            albumData.push({
+                "id": team.id,
+                "name": team.name,
+                "stickers": stickers
+            });
+        });
+
+        // Carrega dados específicos do álbum físico no LocalStorage
+        let userProgress = JSON.parse(localStorage.getItem('cup2026_physical_progress')) || {};
+
+        function initApp() {
+            renderAlbum();
+            updateStats();
+        }
+
+        function renderAlbum() {
+            const container = document.getElementById('teams-container');
+            container.innerHTML = '';
+
+            albumData.forEach(team => {
+                const teamSection = document.createElement('div');
+                teamSection.className = 'team-section';
+                teamSection.setAttribute('data-team-id', team.id);
+                teamSection.setAttribute('data-team-name', team.name.toLowerCase());
+
+                let ownedInTeam = 0;
+                team.stickers.forEach(st => {
+                    if (userProgress[st.code] && userProgress[st.code].owned) ownedInTeam++;
+                });
+
+                teamSection.innerHTML = `
+                    <div class="team-header">
+                        <span>${team.name}</span>
+                        <span class="team-progress" id="progress-${team.id}">${ownedInTeam} / ${team.stickers.length}</span>
+                    </div>
+                    <div class="stickers-grid">
+                        ${team.stickers.map(st => {
+                            const isOwned = userProgress[st.code]?.owned || false;
+                            const repCount = userProgress[st.code]?.repeated || 0;
+                            const cardClass = `${isOwned ? 'owned' : ''} ${repCount > 0 ? 'has-repeated' : ''}`;
+                            
+                            return `
+                                <div class="sticker-card ${cardClass}" id="card-${st.code}" data-search="${st.name.toLowerCase()}">
+                                    <div class="sticker-id">${st.code}</div>
+                                    <div class="sticker-name">${st.name}</div>
+                                    <button class="action-btn btn-have" onclick="toggleOwned('${st.code}', '${team.id}')">
+                                        ${isOwned ? 'Tenho' : 'Colar'}
+                                    </button>
+                                    <div class="repeated-control">
+                                        <button class="rep-btn" onclick="changeRepeated('${st.code}', -1)">-</button>
+                                        <span class="rep-count" id="rep-${st.code}">${repCount}</span>
+                                        <button class="rep-btn" onclick="changeRepeated('${st.code}', 1)">+</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(teamSection);
+            });
+        }
+
+        function toggleOwned(code, teamId) {
+            if (!userProgress[code]) {
+                userProgress[code] = { owned: false, repeated: 0 };
+            }
+            userProgress[code].owned = !userProgress[code].owned;
+            
+            const card = document.getElementById(`card-${code}`);
+            const btn = card.querySelector('.btn-have');
+            
+            if (userProgress[code].owned) {
+                card.classList.add('owned');
+                btn.innerText = 'Tenho';
+            } else {
+                card.classList.remove('owned');
+                btn.innerText = 'Colar';
+            }
+
+            saveData();
+            updateTeamProgress(teamId);
+            updateStats();
+        }
+
+        function changeRepeated(code, amount) {
+            if (!userProgress[code]) {
+                userProgress[code] = { owned: false, repeated: 0 };
+            }
+            
+            userProgress[code].repeated = Math.max(0, (userProgress[code].repeated || 0) + amount);
+            
+            const card = document.getElementById(`card-${code}`);
+            const repLabel = document.getElementById(`rep-${code}`);
+            repLabel.innerText = userProgress[code].repeated;
+
+            if (userProgress[code].repeated > 0) {
+                card.classList.add('has-repeated');
+            } else {
+                card.classList.remove('has-repeated');
+            }
+
+            saveData();
+            updateStats();
+        }
+
+        function updateTeamProgress(teamId) {
+            const team = albumData.find(t => t.id === teamId);
+            let owned = 0;
+            team.stickers.forEach(st => {
+                if (userProgress[st.code] && userProgress[st.code].owned) owned++;
+            });
+            document.getElementById(`progress-${teamId}`).innerText = `${owned} / ${team.stickers.length}`;
+        }
+
+        function updateStats() {
+            let totalStickers = 0;
+            let totalOwned = 0;
+            let totalRepeated = 0;
+
+            albumData.forEach(team => {
+                totalStickers += team.stickers.length;
+                team.stickers.forEach(st => {
+                    if (userProgress[st.code]) {
+                        if (userProgress[st.code].owned) totalOwned++;
+                        totalRepeated += (userProgress[st.code].repeated || 0);
+                    }
+                });
+            });
+
+            const missing = totalStickers - totalOwned;
+            const pct = totalStickers > 0 ? Math.round((totalOwned / totalStickers) * 100) : 0;
+
+            document.getElementById('stat-total-stickers').innerText = totalStickers;
+            document.getElementById('stat-owned').innerHTML = `${totalOwned} (<span id="stat-owned-pct">${pct}%</span>)`;
+            document.getElementById('stat-missing').innerText = missing;
+            document.getElementById('stat-repeated').innerText = totalRepeated;
+        }
+
+        function filterTeams() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const sections = document.querySelectorAll('.team-section');
+
+            sections.forEach(section => {
+                const teamName = section.getAttribute('data-team-name');
+                const teamId = section.getAttribute('data-team-id').toLowerCase();
+                const cards = section.querySelectorAll('.sticker-card');
+                let teamMatches = teamName.includes(query) || teamId.includes(query);
+                let anyCardMatches = false;
+
+                cards.forEach(card => {
+                    const cardId = card.id.replace('card-', '').toLowerCase();
+                    const playerName = card.getAttribute('data-search');
+                    
+                    if (cardId.includes(query) || playerName.includes(query) || teamMatches) {
+                        card.style.display = 'flex';
+                        anyCardMatches = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (teamMatches || anyCardMatches) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        function saveData() {
+            localStorage.setItem('cup2026_physical_progress', JSON.stringify(userProgress));
+        }
+
+        function clearAllData() {
+            if (confirm('Tem certeza que deseja apagar todo o progresso do Álbum Físico?')) {
+                userProgress = {};
+                saveData();
+                initApp();
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
