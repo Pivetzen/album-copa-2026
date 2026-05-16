@@ -256,7 +256,7 @@
 
     <header>
         <h1>Controle do Álbum Físico - Copa 2026</h1>
-        <p>Configurado: 20 figurinhas por seleção (1: Emblema, 13: Foto da Equipe, demais: Jogadores)</p>
+        <p>Seções Especiais e 48 Seleções com distribuição oficial de cromos</p>
     </header>
 
     <div class="dashboard">
@@ -279,7 +279,7 @@
     </div>
 
     <div class="filters">
-        <input type="text" id="search-input" class="search-bar" placeholder="Buscar país, código da figurinha ou jogador..." oninput="filterTeams()">
+        <input type="text" id="search-input" class="search-bar" placeholder="Buscar seção, código da figurinha ou jogador..." oninput="filterTeams()">
     </div>
 
     <div class="teams-container" id="teams-container"></div>
@@ -289,7 +289,6 @@
     </div>
 
     <script>
-        // Mapeamento bruto dos elencos passados pelo usuário
         const rawPlayersData = {
             "MEX": ["Luis Malagón", "Johan Vásquez", "Jorge Sánchez", "César Montes", "Jesús Gallardo", "Israel Reyes", "Diego Lainez", "Carlos Rodríguez", "Edson Álvarez", "Orbelín Pineda", "Marcel Ruiz", "Érick Sánchez", "Hirving Lozano", "Santiago Giménez", "Raúl Jiménez", "Alexis Vega", "Roberto Alvarado", "César Huerta"],
             "RSA": ["Ronwen Williams", "Sipho Chaine", "Aubrey Modiba", "Samukele Kabini", "Mbekezeli Mbokazi", "Khulumani Ndamane", "Siyabonga Ngezana", "Khuliso Mudau", "Nkosinathi Sibisi", "Teboho Mokoena", "Thalente Mbatha", "Bathuisi Aubaas", "Yaya Sithole", "Sipho Mbule", "Lyle Foster", "Ioraam Rayners", "Mohau Nkota", "Oswin Appolis"],
@@ -358,7 +357,30 @@
 
         const albumData = [];
 
-        // Montagem estruturada do banco do Álbum Físico (20 Figuras por Seleção)
+        // 1. Inclusão da Página Inicial no início
+        albumData.push({
+            "id": "INI",
+            "name": "Página Inicial",
+            "stickers": [
+                {"code": "00", "name": "00"},
+                {"code": "FWC1", "name": "FWC 1"},
+                {"code": "FWC2", "name": "FWC 2"},
+                {"code": "FWC3", "name": "FWC 3"},
+                {"code": "FWC4", "name": "FWC 4"},
+                {"code": "FWC5", "name": "FWC 5"},
+                {"code": "FWC6", "name": "FWC 6"},
+                {"code": "FWC7", "name": "FWC 7"}
+            ]
+        });
+
+        // 2. Inclusão de Fifa World Cup History no início
+        albumData.push({
+            "id": "HIS",
+            "name": "FIFA World Cup History",
+            "stickers": Array.from({length: 12}, (_, i) => ({ "code": `FWC${i+8}`, "name": `FWC ${i+8}` }))
+        });
+
+        // 3. Montagem das 48 seleções (20 Figuras por Seleção)
         teamMetadata.forEach(team => {
             const stickers = [];
             const playersList = rawPlayersData[team.id] || [];
@@ -388,6 +410,13 @@
             });
         });
 
+        // 4. Inclusão da Coca-Cola no final do álbum
+        albumData.push({
+            "id": "COC",
+            "name": "Coca-Cola",
+            "stickers": Array.from({length: 14}, (_, i) => ({ "code": `CC${i+1}`, "name": `Coca-Cola ${i+1}` }))
+        });
+
         let userProgress = JSON.parse(localStorage.getItem('cup2026_physical_album_progress')) || {};
 
         function initApp() {
@@ -412,7 +441,7 @@
 
                 teamSection.innerHTML = `
                     <div class="team-header">
-                        <span>${team.name} (${team.id})</span>
+                        <span>${team.name} ${team.id.length === 3 && !['INI', 'HIS', 'COC'].includes(team.id) ? `(${team.id})` : ''}</span>
                         <span class="team-progress" id="progress-${team.id}">${ownedInTeam} / ${team.stickers.length}</span>
                     </div>
                     <div class="stickers-grid">
