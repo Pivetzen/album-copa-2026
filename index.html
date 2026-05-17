@@ -76,20 +76,57 @@
             color: var(--primary-color);
         }
 
-        .filters {
-            margin-bottom: 20px;
+        .controls-row {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .search-bar {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 15px;
+            flex: 2;
+            min-width: 250px;
+            padding: 12px 15px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
             font-size: 14px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 3;
+            min-width: 300px;
+        }
+
+        .filter-btn {
+            padding: 10px 15px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #ffffff;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
+        }
+
+        .pdf-btn {
+            background-color: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+
+        .pdf-btn:hover {
+            background-color: #2b6cb0;
         }
 
         .teams-container {
@@ -250,6 +287,39 @@
         .btn-danger {
             background-color: #e74c3c;
         }
+
+        /* --- ESTILOS DE IMPRESSÃO / GERAÇÃO DE PDF --- */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                padding: 0;
+            }
+            header, .dashboard, .controls-row, .actions-footer, .action-btn, .repeated-control {
+                display: none !important;
+            }
+            .team-section {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                page-break-inside: avoid;
+                margin-bottom: 15px;
+            }
+            .stickers-grid {
+                grid-template-columns: repeat(6, 1fr) !important;
+                gap: 5px !important;
+            }
+            .sticker-card {
+                background: white !important;
+                border: 1px solid #cbd5e1 !important;
+                padding: 5px !important;
+            }
+            .sticker-card.owned {
+                background-color: #f0fdf4 !important;
+            }
+            .sticker-card.has-repeated {
+                border-color: #f97316 !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -278,8 +348,16 @@
         </div>
     </div>
 
-    <div class="filters">
-        <input type="text" id="search-input" class="search-bar" placeholder="Buscar seção, código da figurinha ou jogador..." oninput="filterTeams()">
+    <div class="controls-row">
+        <input type="text" id="search-input" class="search-bar" placeholder="Buscar seção, código ou jogador..." oninput="filterAndApply()">
+        
+        <div class="filter-group">
+            <button class="filter-btn active" id="filter-all" onclick="setStickerFilter('all')">Ver Todas</button>
+            <button class="filter-btn" id="filter-owned" onclick="setStickerFilter('owned')">Apenas Coladas</button>
+            <button class="filter-btn" id="filter-missing" onclick="setStickerFilter('missing')">Apenas Faltantes</button>
+            <button class="filter-btn" id="filter-repeated" onclick="setStickerFilter('repeated')">Apenas Repetidas</button>
+            <button class="filter-btn pdf-btn" onclick="generatePDF()">Gerar PDF do Cenário</button>
+        </div>
     </div>
 
     <div class="teams-container" id="teams-container"></div>
@@ -363,8 +441,8 @@
         ];
 
         const albumData = [];
+        let currentFilter = 'all'; // all, owned, missing, repeated
 
-        // 1. Configuração Ajustada da Página Inicial
         albumData.push({
             "id": "INI",
             "name": "Página Inicial",
@@ -381,14 +459,12 @@
             ]
         });
 
-        // 2. Configuração Ajustada da FIFA World Cup History (Iniciando em FWC9)
         albumData.push({
             "id": "HIS",
             "name": "FIFA World Cup History",
             "stickers": Array.from({length: 11}, (_, i) => ({ "code": `FWC${i+9}`, "name": `FWC ${i+9}` }))
         });
 
-        // 3. Montagem das 48 seleções (20 Figuras por Seleção)
         teamMetadata.forEach(team => {
             const stickers = [];
             const playersList = rawPlayersData[team.id] || [];
@@ -418,7 +494,6 @@
             });
         });
 
-        // 4. Configuração Ajustada da Coca-Cola com os nomes corretos
         albumData.push({
             "id": "COC",
             "name": "Coca-Cola",
@@ -433,6 +508,7 @@
         function initApp() {
             renderAlbum();
             updateStats();
+            filterAndApply();
         }
 
         function renderAlbum() {
@@ -462,7 +538,7 @@
                             const cardClass = `${isOwned ? 'owned' : ''} ${repCount > 0 ? 'has-repeated' : ''}`;
                             
                             return `
-                                <div class="sticker-card ${cardClass}" id="card-${st.code}" data-search="${st.name.toLowerCase()}">
+                                <div class="sticker-card ${cardClass}" id="card-${st.code}" data-search="${st.name.toLowerCase()}" data-owned="${isOwned}" data-repeated="${repCount}">
                                     <div class="sticker-id">${st.code}</div>
                                     <div class="sticker-name">${st.name}</div>
                                     <button class="action-btn btn-have" onclick="toggleOwned('${st.code}', '${team.id}')">
@@ -493,15 +569,18 @@
             
             if (userProgress[code].owned) {
                 card.classList.add('owned');
+                card.setAttribute('data-owned', 'true');
                 btn.innerText = 'Tenho';
             } else {
                 card.classList.remove('owned');
+                card.setAttribute('data-owned', 'false');
                 btn.innerText = 'Colar';
             }
 
             saveData();
             updateTeamProgress(teamId);
             updateStats();
+            filterAndApply();
         }
 
         function changeRepeated(code, amount) {
@@ -514,6 +593,7 @@
             const card = document.getElementById(`card-${code}`);
             const repLabel = document.getElementById(`rep-${code}`);
             repLabel.innerText = userProgress[code].repeated;
+            card.setAttribute('data-repeated', userProgress[code].repeated);
 
             if (userProgress[code].repeated > 0) {
                 card.classList.add('has-repeated');
@@ -523,6 +603,7 @@
 
             saveData();
             updateStats();
+            filterAndApply();
         }
 
         function updateTeamProgress(teamId) {
@@ -558,7 +639,21 @@
             document.getElementById('stat-repeated').innerText = totalRepeated;
         }
 
-        function filterTeams() {
+        function setStickerFilter(filterType) {
+            currentFilter = filterType;
+            
+            document.querySelectorAll('.filter-group .filter-btn').forEach(btn => {
+                if(btn.id === `filter-${filterType}`) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            filterAndApply();
+        }
+
+        function filterAndApply() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const sections = document.querySelectorAll('.team-section');
 
@@ -566,27 +661,45 @@
                 const teamName = section.getAttribute('data-team-name');
                 const teamId = section.getAttribute('data-team-id').toLowerCase();
                 const cards = section.querySelectorAll('.sticker-card');
-                let teamMatches = teamName.includes(query) || teamId.includes(query);
-                let anyCardMatches = false;
+                
+                let teamMatchesSearch = teamName.includes(query) || teamId.includes(query);
+                let visibleCardsInSection = 0;
 
                 cards.forEach(card => {
                     const cardId = card.id.replace('card-', '').toLowerCase();
                     const playerName = card.getAttribute('data-search');
+                    const isOwned = card.getAttribute('data-owned') === 'true';
+                    const repCount = parseInt(card.getAttribute('data-repeated') || '0', 10);
+
+                    // Validação do campo de Busca por texto
+                    let textMatches = cardId.includes(query) || playerName.includes(query) || teamMatchesSearch;
                     
-                    if (cardId.includes(query) || playerName.includes(query) || teamMatches) {
+                    // Validação do Filtro por estado (Colada, Faltante, Repetida)
+                    let conditionMatches = false;
+                    if (currentFilter === 'all') conditionMatches = true;
+                    else if (currentFilter === 'owned' && isOwned) conditionMatches = true;
+                    else if (currentFilter === 'missing' && !isOwned) conditionMatches = true;
+                    else if (currentFilter === 'repeated' && repCount > 0) conditionMatches = true;
+
+                    if (textMatches && conditionMatches) {
                         card.style.display = 'flex';
-                        anyCardMatches = true;
+                        visibleCardsInSection++;
                     } else {
                         card.style.display = 'none';
                     }
                 });
 
-                if (teamMatches || anyCardMatches) {
+                // Se não sobrou nenhuma figurinha visível dentro do grupo, esconde o cabeçalho/grupo inteiro
+                if (visibleCardsInSection > 0) {
                     section.style.display = 'block';
                 } else {
                     section.style.display = 'none';
                 }
             });
+        }
+
+        function generatePDF() {
+            window.print();
         }
 
         function saveData() {
