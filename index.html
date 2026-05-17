@@ -325,7 +325,7 @@
             "FRA": ["Mike Maignan", "Theo Hernández", "William Saliba", "Jules Koundé", "Ibrahima Konaté", "Dayot Upamecano", "Lucas Digne", "Aurélien Tchouaméni", "Eduardo Camavinga", "Manu Koné", "Adrien Rabiot", "Michael Olise", "Ousmane Dembélé", "Bradley Barcola", "Désiré Doué", "Kingsley Coman", "Hugo Ekitike", "Kylian Mbappé"],
             "SEN": ["Eduardo Mendy", "Yehvann Diouf", "Moussa Niakhaté", "Abdoulaye Seck", "Ismail Jakobs", "El Hadji Malick Diouf", "Kalidou Koulibaly", "Idrissa Gana Gueye", "Pape Matar Sarr", "Pape Gueye", "Habib Diarra", "Lamine Camara", "Sadio Mane", "Ismaïla Sarr", "Boulaye Dia", "Iliman Ndiaye", "Nicolas Jackson", "Krepin Diatta"],
             "IRQ": ["Jalal Hassan", "Rebin Sulaka", "Hussein Ali", "Akam Hashem", "Merchas Doski", "Zaid Tahseen", "Manaf Younis", "Zidane Iqbal", "Amir Al-Ammari", "Ibrahim Bayesh", "Ali Jasim", "Youssef Amyn", "Aimar Sher", "Marko Farji", "Osama Rashid", "Ali Al-Hamadi", "Aymen Hussein", "Mohanad Ali"],
-            "NOR": ["Ørjan Nyland", "Julian Ryerson", "Leo Østigård", "Kristoffer Ajer", "Marcus Holmgren Pedersen", "David Møller Wolfe", "Torbjørn Heggem", "Morten Thorsby", "Martin Ødegaard", "Sander Berge", "Andreas Schjelderup", "Patrick Berg", "Erling Haaland", "Alexander Sørloth", "Aron Dønnum", "Jørgen Strand Larsen", "Antonio Nusa", "Oscar Bobb"],
+            "NOR": ["Ørjan Nyland", "Julian Ryerson", "Leo Østungård", "Kristoffer Ajer", "Marcus Holmgren Pedersen", "David Møller Wolfe", "Torbjørn Heggem", "Morten Thorsby", "Martin Ødegaard", "Sander Berge", "Andreas Schjelderup", "Patrick Berg", "Erling Haaland", "Alexander Sørloth", "Aron Dønnum", "Jørgen Strand Larsen", "Antonio Nusa", "Oscar Bobb"],
             "ARG": ["Emiliano Martínez", "Nahuel Molina", "Cristian Romero", "Nicolás Otamendi", "Nicolás Tagliafico", "Leonardo Balerdi", "Enzo Fernández", "Alexis Mac Allister", "Rodrigo De Paul", "Exequiel Palacios", "Leandro Paredes", "Nico Paz", "Franco Mastantuono", "Nico González", "Lionel Messi", "Lautaro Martínez", "Julián Álvarez", "Giuliano Simeone"],
             "ALG": ["Alexis Guendouz", "Ramy Bensebaini", "Youcef Atal", "Rayan Aït-Nouri", "Mohamed Amine Tougai", "Aïssa Mandi", "Ismael Bennacer", "Houssem Aouar", "Hicham Boudaoui", "Ramiz Zerrouki", "Nabil Bentaleb", "Farés Chaibi", "Riyad Mahrez", "Said Benrahma", "Anis Hadj Moussa", "Amine Gouiri", "Baghdad Bounedjah", "Mohammed Amoura"],
             "AUT": ["Alexander Schlager", "Patrick Pentz", "David Alaba", "Kevin Danso", "Philipp Lienhart", "Stefan Posch", "Phillipp Mwene", "Alexander Prass", "Xaver Schlager", "Marcel Sabitzer", "Konrad Laimer", "Florian Grillitsch", "Nicolas Seiwald", "Romano Schmid", "Patrick Wimmer", "Christoph Baumgartner", "Michael Gregoritsch", "Marko Arnautović"],
@@ -355,29 +355,37 @@
             {"id": "ENG", "name": "Inglaterra"}, {"id": "CRO", "name": "Croácia"}, {"id": "GHA", "name": "Gana"}, {"id": "PAN", "name": "Panamá"}
         ];
 
+        const cocaColaPlayers = [
+            "Lamine Yamal", "Joshua Kimmich", "Harry Kane", "Santiago Gimenez", 
+            "Josko Gvardiol", "Federico Valverde", "Jefferson Lerma", "Enner Valencia", 
+            "Gabriel Magalhaes", "Virgil Van Dijk", "Alphonso Davies", "Emiliano Martinez", 
+            "Raul Jimenez", "Lautaro Martinez"
+        ];
+
         const albumData = [];
 
-        // 1. Inclusão da Página Inicial no início
+        // 1. Configuração Ajustada da Página Inicial
         albumData.push({
             "id": "INI",
             "name": "Página Inicial",
             "stickers": [
-                {"code": "00", "name": "00"},
-                {"code": "FWC1", "name": "FWC 1"},
-                {"code": "FWC2", "name": "FWC 2"},
-                {"code": "FWC3", "name": "FWC 3"},
-                {"code": "FWC4", "name": "FWC 4"},
-                {"code": "FWC5", "name": "FWC 5"},
-                {"code": "FWC6", "name": "FWC 6"},
-                {"code": "FWC7", "name": "FWC 7"}
+                {"code": "00", "name": "PANINI"},
+                {"code": "FWC1", "name": "Taça 1/2"},
+                {"code": "FWC2", "name": "Taça 2/2"},
+                {"code": "FWC3", "name": "Mascotes Oficiais"},
+                {"code": "FWC4", "name": "Slogan Oficial"},
+                {"code": "FWC5", "name": "Bola Oficial"},
+                {"code": "FWC6", "name": "Emblema do país-sede CAN"},
+                {"code": "FWC7", "name": "Emblema do país-sede MEX"},
+                {"code": "FWC8", "name": "Emblema do país-sede USA"}
             ]
         });
 
-        // 2. Inclusão de Fifa World Cup History no início
+        // 2. Configuração Ajustada da FIFA World Cup History (Iniciando em FWC9)
         albumData.push({
             "id": "HIS",
             "name": "FIFA World Cup History",
-            "stickers": Array.from({length: 12}, (_, i) => ({ "code": `FWC${i+8}`, "name": `FWC ${i+8}` }))
+            "stickers": Array.from({length: 11}, (_, i) => ({ "code": `FWC${i+9}`, "name": `FWC ${i+9}` }))
         });
 
         // 3. Montagem das 48 seleções (20 Figuras por Seleção)
@@ -410,11 +418,14 @@
             });
         });
 
-        // 4. Inclusão da Coca-Cola no final do álbum
+        // 4. Configuração Ajustada da Coca-Cola com os nomes corretos
         albumData.push({
             "id": "COC",
             "name": "Coca-Cola",
-            "stickers": Array.from({length: 14}, (_, i) => ({ "code": `CC${i+1}`, "name": `Coca-Cola ${i+1}` }))
+            "stickers": cocaColaPlayers.map((player, index) => ({
+                "code": `CC${index+1}`,
+                "name": player
+            }))
         });
 
         let userProgress = JSON.parse(localStorage.getItem('cup2026_physical_album_progress')) || {};
